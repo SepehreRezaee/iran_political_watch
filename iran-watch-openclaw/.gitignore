@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+.pytest_cache/
+out/*.json
+out/*.md
+out/*.sqlite
+out/runs/*.json
+out/runs/*.md
+out/cron.log

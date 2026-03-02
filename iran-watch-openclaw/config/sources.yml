@@ -1,0 +1,118 @@
+sources:
+  - id: irna_rss
+    name: IRNA
+    type: rss
+    enabled: true
+    optional: true
+    tier: B
+    domain: irna.ir
+    url: https://en.irna.ir/rss
+
+  - id: isna_rss
+    name: ISNA
+    type: rss
+    enabled: true
+    optional: true
+    tier: B
+    domain: isna.ir
+    url: https://www.isna.ir/rss
+
+  - id: mehr_rss
+    name: Mehr News
+    type: rss
+    enabled: true
+    optional: true
+    tier: B
+    domain: mehrnews.com
+    url: https://en.mehrnews.com/rss
+
+  - id: fars_rss
+    name: Fars News
+    type: rss
+    enabled: true
+    optional: true
+    tier: B
+    domain: farsnews.ir
+    url: https://www.farsnews.ir/rss
+
+  - id: tasnim_rss
+    name: Tasnim News
+    type: rss
+    enabled: true
+    optional: true
+    tier: B
+    domain: tasnimnews.com
+    url: https://www.tasnimnews.com/fa/rss/feed/0/7/0
+
+  - id: reuters_rss
+    name: Reuters (Middle East)
+    type: rss
+    enabled: true
+    optional: true
+    tier: A
+    domain: reuters.com
+    url: https://www.reutersagency.com/feed/?best-topics=middle-east
+
+  - id: ap_rss
+    name: AP (Middle East)
+    type: rss
+    enabled: true
+    optional: true
+    tier: A
+    domain: apnews.com
+    url: https://apnews.com/hub/middle-east/rss
+
+  - id: bbc_rss
+    name: BBC World Middle East
+    type: rss
+    enabled: true
+    optional: false
+    tier: A
+    domain: bbc.co.uk
+    url: https://feeds.bbci.co.uk/news/world/middle_east/rss.xml
+
+  - id: aljazeera_rss
+    name: Al Jazeera
+    type: rss
+    enabled: true
+    optional: false
+    tier: A
+    domain: aljazeera.com
+    url: https://www.aljazeera.com/xml/rss/all.xml
+
+  - id: guardian_rss
+    name: The Guardian Iran
+    type: rss
+    enabled: true
+    optional: false
+    tier: A
+    domain: theguardian.com
+    url: https://www.theguardian.com/world/iran/rss
+
+  - id: dw_rss
+    name: DW English
+    type: rss
+    enabled: true
+    optional: true
+    tier: A
+    domain: dw.com
+    url: https://rss.dw.com/rdf/rss-en-all
+
+  - id: france24_rss
+    name: France24 Middle East
+    type: rss
+    enabled: true
+    optional: true
+    tier: A
+    domain: france24.com
+    url: https://www.france24.com/en/middle-east/rss
+
+  - id: gdelt_global
+    name: GDELT Global Doc API
+    type: gdelt
+    enabled: true
+    optional: false
+    tier: C
+    domain: api.gdeltproject.org
+    query: "(Iran OR Tehran OR IRGC OR Supreme Leader OR sanctions)"
+    max_records: 200

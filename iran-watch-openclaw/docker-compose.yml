@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  iran-watch:
+    build: .
+    image: iran-watch-openclaw:latest
+    container_name: iran-watch-openclaw
+    command: ["python", "-m", "iran_watch", "run", "--mode", "8h"]
+    volumes:
+      - ./out:/app/out
+      - ./config:/app/config:ro
+    environment:
+      - TZ=UTC

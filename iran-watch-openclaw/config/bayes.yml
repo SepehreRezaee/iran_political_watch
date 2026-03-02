@@ -1,0 +1,103 @@
+alpha: 0.85
+blend_weight: 0.60
+
+scenarios:
+  S1:
+    shock_p: 0.25
+    means:
+      I1: 8.2
+      I2: 5.2
+      I3: 3.2
+      I4: 4.6
+      I5: 7.4
+      econ: 5.2
+      protest: 3.3
+      elite: 4.5
+      external: 7.0
+      security: 7.8
+    stds:
+      I1: 1.5
+      I2: 1.8
+      I3: 1.6
+      I4: 1.7
+      I5: 1.7
+      econ: 1.8
+      protest: 1.7
+      elite: 1.7
+      external: 1.8
+      security: 1.6
+
+  S2:
+    shock_p: 0.30
+    means:
+      I1: 5.0
+      I2: 7.8
+      I3: 5.2
+      I4: 5.4
+      I5: 6.6
+      econ: 7.6
+      protest: 5.0
+      elite: 5.4
+      external: 6.5
+      security: 5.4
+    stds:
+      I1: 1.8
+      I2: 1.5
+      I3: 1.7
+      I4: 1.7
+      I5: 1.7
+      econ: 1.6
+      protest: 1.7
+      elite: 1.7
+      external: 1.7
+      security: 1.8
+
+  S3:
+    shock_p: 0.55
+    means:
+      I1: 3.0
+      I2: 7.4
+      I3: 7.8
+      I4: 7.2
+      I5: 6.2
+      econ: 7.2
+      protest: 7.7
+      elite: 7.1
+      external: 6.2
+      security: 6.1
+    stds:
+      I1: 1.7
+      I2: 1.6
+      I3: 1.5
+      I4: 1.5
+      I5: 1.8
+      econ: 1.6
+      protest: 1.5
+      elite: 1.6
+      external: 1.8
+      security: 1.9
+
+  S4:
+    shock_p: 0.65
+    means:
+      I1: 2.2
+      I2: 7.0
+      I3: 8.0
+      I4: 7.8
+      I5: 5.8
+      econ: 6.9
+      protest: 8.0
+      elite: 7.8
+      external: 5.7
+      security: 6.3
+    stds:
+      I1: 1.6
+      I2: 1.7
+      I3: 1.4
+      I4: 1.5
+      I5: 1.8
+      econ: 1.7
+      protest: 1.4
+      elite: 1.5
+      external: 1.8
+      security: 1.9

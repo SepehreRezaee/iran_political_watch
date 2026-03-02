@@ -1,0 +1,22 @@
+version: 1
+disable_existing_loggers: false
+formatters:
+  json:
+    (): iran_watch.utils.JsonFormatter
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: json
+    stream: ext://sys.stdout
+
+loggers:
+  iran_watch:
+    level: INFO
+    handlers: [console]
+    propagate: false
+
+root:
+  level: INFO
+  handlers: [console]

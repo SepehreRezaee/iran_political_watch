@@ -1,0 +1,11 @@
+ingest:
+  timeout_sec: 25
+  requests_per_second: 1.0
+  stale_after_minutes: 360
+
+dedupe:
+  fuzzy_threshold: 92
+
+report:
+  max_top_headlines: 10
+  max_evidence_per_indicator: 5
