@@ -1,0 +1,6 @@
+airllm==2.11.0
+transformers==4.53.1
+accelerate==1.8.1
+torch==2.7.1
+safetensors==0.5.3
+huggingface-hub==0.33.4

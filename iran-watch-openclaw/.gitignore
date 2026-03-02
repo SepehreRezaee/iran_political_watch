@@ -7,3 +7,5 @@ out/*.sqlite
 out/runs/*.json
 out/runs/*.md
 out/cron.log
+out/source_validation.json
+out/airllm_layers/

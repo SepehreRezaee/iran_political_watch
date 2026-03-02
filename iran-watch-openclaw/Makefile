@@ -1,11 +1,14 @@
 PYTHON ?= python3
 PIP ?= pip3
 
-.PHONY: setup run-8h run-daily test docker-build docker-run lint
+.PHONY: setup setup-slm-airllm run-8h run-daily test docker-build docker-run lint
 
 setup:
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
+
+setup-slm-airllm:
+	$(PIP) install -r requirements-slm-airllm.txt
 
 run-8h:
 	$(PYTHON) -m iran_watch run --mode 8h

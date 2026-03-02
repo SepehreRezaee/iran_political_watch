@@ -14,6 +14,7 @@ from iran_watch.model_orchestrator import run_models
 from iran_watch.normalize import normalize_articles
 from iran_watch.report import build_markdown, write_outputs
 from iran_watch.signals import extract_signals
+from iran_watch.slm import blend_probs, run_slm_analysis
 from iran_watch.sources import enabled_sources, load_sources_config
 from iran_watch.storage import Storage
 from iran_watch.utils import configure_logging, hours_ago, iso_utc, load_yaml, utc_now
@@ -27,12 +28,23 @@ def _resolve_project_root(explicit_root: str | None) -> Path:
     return Path(__file__).resolve().parents[1]
 
 
-def _load_configs(project_root: Path) -> tuple[dict[str, Any], dict[str, Any], Any]:
+def _load_configs(project_root: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], Any]:
     config_dir = project_root / "config"
     model_cfg = load_yaml(config_dir / "model.yml")
     bayes_cfg = load_yaml(config_dir / "bayes.yml")
+    slm_cfg = load_yaml(config_dir / "slm.yml")
     sources_cfg = load_sources_config(config_dir / "sources.yml")
-    return model_cfg, bayes_cfg, sources_cfg
+    return model_cfg, bayes_cfg, slm_cfg, sources_cfg
+
+
+def _prob_deltas(current: dict[str, float], prev: dict[str, float] | None) -> dict[str, float | None]:
+    out: dict[str, float | None] = {}
+    for key in ["S1", "S2", "S3", "S4"]:
+        if prev and key in prev:
+            out[key] = round(current[key] - prev[key], 8)
+        else:
+            out[key] = None
+    return out
 
 
 def _run_pipeline(args: argparse.Namespace) -> int:
@@ -46,7 +58,7 @@ def _run_pipeline(args: argparse.Namespace) -> int:
 
     logger.info("run_start", extra={"mode": args.mode})
 
-    model_cfg, bayes_cfg, sources_cfg = _load_configs(project_root)
+    model_cfg, bayes_cfg, slm_cfg, sources_cfg = _load_configs(project_root)
 
     mode_hours = {"8h": 12, "daily": 30}
     since_hours = args.since if args.since is not None else mode_hours[args.mode]
@@ -98,6 +110,32 @@ def _run_pipeline(args: argparse.Namespace) -> int:
         prev_run=prev_run,
     )
 
+    slm_context = {
+        "mode": args.mode,
+        "window_start": iso_utc(window_start),
+        "window_end": iso_utc(window_end),
+        "indicators": signal_result.indicators,
+        "topic_intensities": signal_result.topic_intensities,
+        "shock": {"flag": "Yes" if signal_result.shock else "No", "evidence": signal_result.shock_evidence[:5]},
+        "rule_probs": model_result.rule.probs,
+        "bayes_probs": model_result.bayes.posterior,
+        "core_final_probs": model_result.bayes.blended,
+        "top_headlines": signal_result.top_headlines[:10],
+        "evidence_by_indicator": {k: v[:3] for k, v in signal_result.evidence_by_indicator.items()},
+    }
+    slm_result = run_slm_analysis(slm_cfg, slm_context)
+
+    core_final_probs = model_result.bayes.blended
+    slm_overlay_weight = float(slm_cfg.get("blend_weight", 0.25))
+    use_scenario_overlay = bool((slm_cfg.get("use_for") or {}).get("scenario_overlay", True))
+    if slm_result.used and slm_result.scenario_probs and use_scenario_overlay:
+        final_probs = blend_probs(core_final_probs, slm_result.scenario_probs, slm_overlay_weight)
+    else:
+        final_probs = core_final_probs
+
+    prev_final_probs = (prev_run or {}).get("final_probs")
+    model_result.deltas["final_probs"] = _prob_deltas(final_probs, prev_final_probs)
+
     ts_utc = iso_utc(now)
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
@@ -128,12 +166,24 @@ def _run_pipeline(args: argparse.Namespace) -> int:
         "scenarios": {
             "rule_probs": model_result.rule.probs,
             "bayes_probs": model_result.bayes.posterior,
-            "final_probs": model_result.bayes.blended,
+            "core_final_probs": core_final_probs,
+            "final_probs": final_probs,
             "rule_base_scores": model_result.rule.base_scores,
             "rule_adjusted_scores": model_result.rule.adjusted_scores,
             "trend_multiplier": model_result.rule.trend_multiplier,
             "bayes_prior": model_result.bayes.prior,
             "bayes_log_likelihoods": model_result.bayes.log_likelihoods,
+            "slm_overlay_weight": slm_overlay_weight if slm_result.used and use_scenario_overlay else 0.0,
+            "slm_probs": slm_result.scenario_probs,
+        },
+        "slm_analysis": {
+            "enabled": slm_result.enabled,
+            "used": slm_result.used,
+            "provider": slm_result.provider,
+            "model": slm_result.model,
+            "narrative": slm_result.narrative,
+            "rationale": slm_result.rationale,
+            "error": slm_result.error,
         },
         "cii": model_result.rule.cii,
         "cii_0_10": model_result.rule.cii_0_10,
@@ -175,7 +225,7 @@ def _run_pipeline(args: argparse.Namespace) -> int:
             "cii": model_result.rule.cii,
             "rule_probs": model_result.rule.probs,
             "bayes_probs": model_result.bayes.posterior,
-            "final_probs": model_result.bayes.blended,
+            "final_probs": final_probs,
             "deltas": model_result.deltas,
             "coverage": report_json["coverage"],
             "errors": report_json["errors"],
@@ -183,6 +233,7 @@ def _run_pipeline(args: argparse.Namespace) -> int:
                 "evidence_by_indicator": signal_result.evidence_by_indicator,
                 "shock_evidence": signal_result.shock_evidence,
                 "top_headlines": signal_result.top_headlines,
+                "slm_analysis": report_json["slm_analysis"],
             },
         }
     )

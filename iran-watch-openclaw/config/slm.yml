@@ -1,0 +1,26 @@
+enabled: true
+provider: airllm
+model: Qwen/Qwen3-30B-A3B-Thinking-2507-FP8
+timeout_sec: 120
+temperature: 0.0
+blend_weight: 0.20
+
+# airllm-only options
+compression: 4bit
+input_device: auto
+max_input_tokens: 8192
+max_new_tokens: 1400
+top_p: 0.95
+prefetching: true
+profiling_mode: false
+delete_original: false
+layer_shards_saving_path: out/airllm_layers
+# optional: set if model needs gated access
+hf_token_env: HF_TOKEN
+
+# ollama-only options (used if provider=ollama)
+endpoint: http://localhost:11434/api/generate
+
+use_for:
+  scenario_overlay: true
+  narrative: true

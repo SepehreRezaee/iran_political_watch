@@ -36,6 +36,10 @@ def _headline_line(item: dict[str, Any]) -> str:
 
 
 def _narrative(report_data: dict[str, Any]) -> list[str]:
+    slm_narrative = report_data.get("slm_analysis", {}).get("narrative", [])
+    if slm_narrative:
+        return [str(p).strip() for p in slm_narrative if str(p).strip()][:3]
+
     ev = report_data.get("evidence_by_indicator", {})
     i2 = (ev.get("I2") or [])[:1]
     i3 = (ev.get("I3") or [])[:1]
@@ -161,6 +165,19 @@ def build_markdown(report_data: dict[str, Any]) -> str:
             )
         )
     lines.append("")
+
+    slm_info = report_data.get("slm_analysis", {})
+    if slm_info.get("enabled"):
+        lines.append("## SLM Analysis")
+        lines.append(
+            f"- Enabled: {slm_info.get('enabled')} | Used: {slm_info.get('used')} | Model: `{slm_info.get('model', 'n/a')}`"
+        )
+        if slm_info.get("error"):
+            err = slm_info["error"]
+            lines.append(f"- SLM error: {err.get('type', 'Error')} - {err.get('message', '')}")
+        if slm_info.get("rationale"):
+            lines.append(f"- Rationale: {slm_info.get('rationale')}")
+        lines.append("")
 
     cii = report_data["cii"]
     lines.append("## CII")

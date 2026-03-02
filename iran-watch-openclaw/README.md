@@ -13,6 +13,7 @@ Enterprise-oriented Iran political risk watch pipeline with legal ingestion (RSS
 - Conservative shock confirmation logic.
 - Rule-based scenario model (S1..S4) with trend/coupling/shock multipliers + softmax.
 - Bayesian update model with forgetting factor and blend to final probabilities.
+- Optional SLM reasoning layer (default: AirLLM + `Qwen/Qwen3-30B-A3B-Thinking-2507-FP8`) for scenario overlay + narrative.
 - SQLite history for articles + runs.
 - Markdown + JSON report artifacts per run.
 - Per-source freshness tracking (minutes since latest article).
@@ -46,6 +47,21 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -U pip
 pip install -r requirements.txt
+```
+
+Optional (for AirLLM + Qwen SLM mode):
+
+```bash
+pip install -r requirements-slm-airllm.txt
+# optional for gated models
+export HF_TOKEN=your_hf_token
+```
+
+If you want Ollama instead of AirLLM:
+
+```bash
+ollama pull deepseek-r1:32b
+ollama serve
 ```
 
 Run 8-hour mode:
@@ -118,6 +134,24 @@ Tune in `config/bayes.yml`:
 - `alpha`
 - `blend_weight`
 - scenario `means`, `stds`, `shock_p`
+
+### SLM Reasoning Overlay (Optional)
+
+- Config: `config/slm.yml`
+- Default provider: `airllm`
+- Default model: `Qwen/Qwen3-30B-A3B-Thinking-2507-FP8`
+- Uses evidence to produce:
+  - `slm_probs` (scenario distribution)
+  - 3-paragraph grounded narrative
+- Final probability overlay:
+  - `final_probs = (1 - slm_blend_weight) * core_final_probs + slm_blend_weight * slm_probs`
+  - Controlled by `blend_weight` and `use_for.scenario_overlay` in `config/slm.yml`
+- Graceful fallback: if SLM is unavailable, pipeline continues using deterministic core model outputs.
+- GPU-reduction path (AirLLM):
+  - set `compression: 4bit` (or `8bit`)
+  - keep `input_device: auto`
+  - use `layer_shards_saving_path` on fast SSD
+  - reduce `max_new_tokens` if memory pressure persists
 
 ## CII
 
